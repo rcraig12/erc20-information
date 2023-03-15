@@ -122,6 +122,7 @@ tokenContract.getPastEvents('Transfer', {
       holderCount++;
       // Print the token holder's address and balance
       //console.log(`Holder: ${holderCount} Address: ${address}, Balance: ${balance} ${tokenSymbol}`);
+    
 
     }
 
