@@ -1,9 +1,9 @@
 const Web3 = require('web3');
-const tokenABI = require('./tokenABI.json'); // Replace with the ABI for your token contract
-const priceFeedABI = require('./priceFeedABI.json'); // Replace with the ABI for the Chainlink Price Feed Contract
-const uniswapRouterABI = require('./UniswapRouterABI.json'); // load the ABI from a local file
-const uniswapFactoryABI = require('./uniswapFactoryABI.json');
-const uniswapV2PairABI = require('./uniswapV2PairABI.json');
+const tokenABI = require('./ABI/tokenABI.json'); // Replace with the ABI for your token contract
+const priceFeedABI = require('./ABI/priceFeedABI.json'); // Replace with the ABI for the Chainlink Price Feed Contract
+const uniswapRouterABI = require('./ABI/UniswapRouterABI.json'); // load the ABI from a local file
+const uniswapFactoryABI = require('./ABI/uniswapFactoryABI.json');
+const uniswapV2PairABI = require('./ABI/uniswapV2PairABI.json');
 
 let tokenData = {
   ethUSD: "",
