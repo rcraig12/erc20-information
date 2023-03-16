@@ -66,6 +66,7 @@ const priceFeedContract = new web3.eth.Contract(priceFeedABI, priceFeedContractA
 
 //Get latest block on the chain
 const getLatestBlock = async () => {
+
   web3.eth.getBlockNumber()
   .then((blockNumber) => {
     //console.log(`Latest block number on mainnet: ${blockNumber}`);
@@ -74,6 +75,7 @@ const getLatestBlock = async () => {
   .catch((error) => {
     console.error(error);
   });
+  
 }
 
 // Get the Token Symbol
@@ -199,9 +201,11 @@ const getTokenPrice = async ( ca ) => {
 
 // Retrieve the current ETH price in USD from the Chainlink Price Feed Contract
 const getEthPrice = async () => {
+
   const priceFeedData = await priceFeedContract.methods.latestRoundData().call();
   const ethPrice = web3.utils.fromWei(priceFeedData.answer, 'ether');
   return parseFloat(ethPrice * 10000000000).toFixed(2);
+
 }
 
 
@@ -238,43 +242,36 @@ const getHolders = async (ca) => {
 
     }
 
-    //console.log(`Block ${block} latest ${latestBlock}`);
-
     await tokenContract.getPastEvents('Transfer', { fromBlock: startBlock, toBlock: block }, (err, events) => {
       
       if (err) {
       
         console.error(err);
-        return;
+        return false;
       
       }
 
-      tokenData.firstBlock = events[0]?.blockNumber;
-
       // Loop through each Transfer event and add the sender and recipient to the token holders set
       for (let i = 0; i < events.length; i++) {
+
         const sender = events[i].returnValues.from;
         const recipient = events[i].returnValues.to;
 
         if (sender !== '0x0000000000000000000000000000000000000000') {
           tokenHolders.add(sender.toLowerCase());
+          //console.log(`sender: ${sender.toLowerCase()}`);
         }
 
         if (recipient !== '0x0000000000000000000000000000000000000000') {
           tokenHolders.add(recipient.toLowerCase());
+          //console.log(`recipient: ${recipient.toLowerCase()}`);
         }
 
       }
 
     });
 
-    
-
   }
-
-  //console.log(`Address Count : ${tokenHolders.size} between block 0 and ${block}`);
-
-  //let holderCount;
 
   // Loop through the token holders set and print their address and balance
   tokenHolders.forEach( async (address) => {
@@ -287,8 +284,6 @@ const getHolders = async (ca) => {
       //console.log(`Holder: ${holderCount} Address: ${address}, Balance: ${balance} ${tokenSymbol}`);
       holderInfo.add({address: address, balance: balance});
       tokenData.holderTotal = holderInfo.size;
-      //holderCount++;
-      //console.log(holders)
 
     }
 
@@ -296,12 +291,11 @@ const getHolders = async (ca) => {
 
   // Fetch all Transfer events for the token contract
 
-  //tokenData.holderTotal = tokenData.holders.length;
+  tokenData.holders = [...holderInfo];
 
-  return holderInfo;
+  return true;
 
 }
-
 
 const getTokenUsingContract = async ( ca ) => {
 
@@ -384,7 +378,6 @@ const getTokenUsingContract = async ( ca ) => {
   await getHolders( ca ).then( res => {
 
     //console.log(res);
-    tokenData.holders = res;
 
   }).catch(err => {
 
@@ -404,34 +397,13 @@ const getTokenUsingContract = async ( ca ) => {
 
   });
 
-  // await getTokenPrice().then((ethPrice) => {
-
-  //   console.log(`Token price in USD: $${ethPrice}`);
-
-  // }).catch((err) => {
-
-  //   console.error(err);
-
-  // });
-
   return tokenData;
 
 }
 
-// getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
+getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
 
-//   //console.log(res);
-//   console.log(`token data sampled successfully`);
-
-// }).catch(err => {
-
-//   console.log(err);
-
-// });
-
-getTokenUsingContract( '0x24b20da7a2fa0d1d5afcd693e1c8afff20507efd' ).then( res => {
-
-  console.log(res);
+  console.log(JSON.stringify(res));
   //console.log(`token data sampled successfully`);
 
 }).catch(err => {
@@ -439,3 +411,15 @@ getTokenUsingContract( '0x24b20da7a2fa0d1d5afcd693e1c8afff20507efd' ).then( res 
   console.log(err);
 
 });
+
+// getTokenUsingContract( '0x24b20da7a2fa0d1d5afcd693e1c8afff20507efd' ).then( res => {
+
+//   console.log(res);
+//   //console.log(`token data sampled successfully`);
+
+// }).catch(err => {
+
+//   console.log(err);
+
+// });
+
