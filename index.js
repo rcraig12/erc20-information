@@ -5,8 +5,7 @@ const uniswapRouterABI = require('./ABI/UniswapRouterABI.json'); // load the ABI
 const uniswapFactoryABI = require('./ABI/uniswapFactoryABI.json');
 const uniswapV2PairABI = require('./ABI/uniswapV2PairABI.json');
 const { ERC20Token } = require('./classes/ERC20Token');
-
-require('./classes/ERC20Token');
+const { Card } = require('./classes/Card');
 
 let latestBlock;
 
@@ -218,7 +217,7 @@ const getHolders = async (ca) => {
 
   const tokenContract = new web3.eth.Contract(tokenABI, ca);
 
-  let holderInfo = new Set();
+  let holderInfo = [];
 
   // Create an empty set to store the token holders
   const tokenHolders = new Set();
@@ -276,25 +275,31 @@ const getHolders = async (ca) => {
 
   }
 
-  // Loop through the token holders set and print their address and balance
+   // Loop through the token holders set and print their address and balance
   tokenHolders.forEach( async (address) => {
 
     const balance = await tokenContract.methods.balanceOf(address).call();
 
     if (balance > 0) {
 
+      //console.log(`Adding ${address} with a balance of ${balance}`);
       // Print the token holder's address and balance
       //console.log(`Holder: ${holderCount} Address: ${address}, Balance: ${balance} ${tokenSymbol}`);
-      holderInfo.add({address: address, balance: balance});
-      tokenData.holderTotal = holderInfo.size;
+
+      var object = {
+        address: address,
+        balance: balance
+      }
+
+      holderInfo.push(object);
+      tokenData.holders = holderInfo;
+      tokenData.holderTotal = holderInfo.length;
 
     }
 
   });
 
   // Fetch all Transfer events for the token contract
-
-  tokenData.holders = [...holderInfo];
 
   return true;
 
@@ -406,7 +411,7 @@ const getTokenUsingContract = async ( ca ) => {
 
 // getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
 
-//   console.log(JSON.stringify(res));
+//   console.log(JSON.stringify(tokenData));
 //   //console.log(`token data sampled successfully`);
 
 // }).catch(err => {
@@ -427,7 +432,8 @@ const getTokenUsingContract = async ( ca ) => {
 // });
 
 //const token = new ERC20Token('0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0');
-const token = new ERC20Token('0xdadb4ae5b5d3099dd1f586f990b845f2404a1c4c');
-token.Poll();
+//const token = new ERC20Token('0xdadb4ae5b5d3099dd1f586f990b845f2404a1c4c');
+//token.Poll();
 
-console.log(`token name : ${token.name}`);
+//console.log(`token name : ${token.name}`);
+Card("card");

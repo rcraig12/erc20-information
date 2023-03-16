@@ -4,9 +4,9 @@
   "description": "Gather information on a token",
   "main": "index.js",
   "dependencies": {
+    "canvas": "^2.11.0",
     "web3": "^1.8.2"
   },
-  "devDependencies": {},
   "scripts": {
     "dev": "nodemon ./index.js",
     "start": "node ./index.js"
