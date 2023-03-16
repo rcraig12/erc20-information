@@ -8,6 +8,7 @@ const uniswapV2PairABI = require('./ABI/uniswapV2PairABI.json');
 let latestBlock;
 
 let tokenData = {
+  firstBlock: "",
   ethUSD: "",
   contract: "",
   symbol: "",
@@ -237,7 +238,7 @@ const getHolders = async (ca) => {
 
     }
 
-    console.log(`Block ${block} latest ${latestBlock}`);
+    //console.log(`Block ${block} latest ${latestBlock}`);
 
     await tokenContract.getPastEvents('Transfer', { fromBlock: startBlock, toBlock: block }, (err, events) => {
       
@@ -247,6 +248,8 @@ const getHolders = async (ca) => {
         return;
       
       }
+
+      tokenData.firstBlock = events[0]?.blockNumber;
 
       // Loop through each Transfer event and add the sender and recipient to the token holders set
       for (let i = 0; i < events.length; i++) {
@@ -269,7 +272,7 @@ const getHolders = async (ca) => {
 
   }
 
-  console.log(`Address Count : ${tokenHolders.size} between block 0 and ${block}`);
+  //console.log(`Address Count : ${tokenHolders.size} between block 0 and ${block}`);
 
   //let holderCount;
 
@@ -282,7 +285,8 @@ const getHolders = async (ca) => {
 
       // Print the token holder's address and balance
       //console.log(`Holder: ${holderCount} Address: ${address}, Balance: ${balance} ${tokenSymbol}`);
-      await holderInfo.add({address: address, balance: balance});
+      holderInfo.add({address: address, balance: balance});
+      tokenData.holderTotal = holderInfo.size;
       //holderCount++;
       //console.log(holders)
 
@@ -381,7 +385,6 @@ const getTokenUsingContract = async ( ca ) => {
 
     //console.log(res);
     tokenData.holders = res;
-    tokenData.holderTotal = res.size;
 
   }).catch(err => {
 
