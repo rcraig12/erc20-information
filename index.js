@@ -4,6 +4,9 @@ const priceFeedABI = require('./ABI/priceFeedABI.json'); // Replace with the ABI
 const uniswapRouterABI = require('./ABI/UniswapRouterABI.json'); // load the ABI from a local file
 const uniswapFactoryABI = require('./ABI/uniswapFactoryABI.json');
 const uniswapV2PairABI = require('./ABI/uniswapV2PairABI.json');
+const { ERC20Token } = require('./classes/ERC20Token');
+
+require('./classes/ERC20Token');
 
 let latestBlock;
 
@@ -75,7 +78,7 @@ const getLatestBlock = async () => {
   .catch((error) => {
     console.error(error);
   });
-  
+
 }
 
 // Get the Token Symbol
@@ -401,16 +404,16 @@ const getTokenUsingContract = async ( ca ) => {
 
 }
 
-getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
+// getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
 
-  console.log(JSON.stringify(res));
-  //console.log(`token data sampled successfully`);
+//   console.log(JSON.stringify(res));
+//   //console.log(`token data sampled successfully`);
 
-}).catch(err => {
+// }).catch(err => {
 
-  console.log(err);
+//   console.log(err);
 
-});
+// });
 
 // getTokenUsingContract( '0x24b20da7a2fa0d1d5afcd693e1c8afff20507efd' ).then( res => {
 
@@ -423,3 +426,8 @@ getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res 
 
 // });
 
+//const token = new ERC20Token('0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0');
+const token = new ERC20Token('0xdadb4ae5b5d3099dd1f586f990b845f2404a1c4c');
+token.Poll();
+
+console.log(`token name : ${token.name}`);
