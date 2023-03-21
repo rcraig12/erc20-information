@@ -1,5 +1,5 @@
 const Web3 = require('web3');
-const { ChainId, Token, WETH, Fetcher, Route, Trade, TradeType } = require('@uniswap/sdk');
+const { ChainId, Token, WETH, Fetcher, Route, Trade, TradeType, TokenAmount } = require('@uniswap/sdk');
 const tokenABI = require('./ABI/tokenABI.json'); // Replace with the ABI for your token contract
 const priceFeedABI = require('./ABI/priceFeedABI.json'); // Replace with the ABI for the Chainlink Price Feed Contract
 const uniswapRouterABI = require('./ABI/UniswapRouterABI.json'); // load the ABI from a local file
@@ -7,6 +7,9 @@ const uniswapFactoryABI = require('./ABI/uniswapFactoryABI.json');
 const uniswapV2PairABI = require('./ABI/uniswapV2PairABI.json');
 const { ERC20Token } = require('./classes/ERC20Token');
 const { Card } = require('./classes/Card');
+
+const METAMASK_API_KEY = `b6bf7d3508c941499b10025c0776eaf8`;
+const INFURA_API_KEY = `47bee71ddf2c4cbd9be2724cca3248e9`;
 
 let latestBlock;
 
@@ -37,7 +40,7 @@ let tokenData = {
 };
 
 // Initialize web3 provider
-const web3 = new Web3('https://mainnet.infura.io/v3/b6bf7d3508c941499b10025c0776eaf8'); // Replace with your Infura project ID
+const web3 = new Web3(`https://mainnet.infura.io/v3/${INFURA_API_KEY}`); // Replace with your Infura project ID
 
 // Set the contract address and token symbol
 //const tokenAddress = '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0'; // Replace with the contract address of your token
@@ -200,16 +203,39 @@ const getTokenPrice = async ( ca ) => {
 
   // return price * (ethPrice / 10000000000);
 
-  const chainId = ChainId.MAINNET;
-  const eth = WETH[chainId];
-  const token = new Token(chainId, tokenData.contract, 18);
-  const pair = await Fetcher.fetchPairData(eth, token);
-  const route = new Route([pair], eth);
-  const amountIn = web3.utils.toWei('1', 'ether');
-  const trade = new Trade(route, new TokenAmount(eth, amountIn), TradeType.EXACT_INPUT);
-  const executionPrice = trade.executionPrice.toSignificant(6);
-  console.log(`Buy price of 1 token: ${executionPrice} ETH`);
+  // Set the Uniswap V2 contract address for the desired network (Mainnet in this example)
+const uniswapV2ContractAddress = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D';
 
+// Set the input and output tokens (e.g., DAI and ETH)
+const token = new Token(ChainId.MAINNET, tokenData.contract, 18, 'VB');
+const eth = WETH[ChainId.MAINNET];
+
+// Fetch the current token pair price from Uniswap V2
+const pair = await Fetcher.fetchPairData(token, eth);
+const route = new Route([pair], eth);
+
+// Calculate the buy price of 1 token
+const amountIn = web3.utils.toWei('0.0001', 'ether');
+const trade = await Trade.exactIn(
+  route,
+  new TokenAmount(eth, amountIn),
+  TradeType.EXACT_INPUT
+);
+
+const executionPrice = trade.executionPrice.toSignificant(6);
+console.log(`Buy price of 1 token: ${executionPrice} ETH`);
+
+// Calculate the sell price of 1 token
+const amountOut = web3.utils.toWei('0.0001', 'ether');
+const trade2 = await Trade.exactOut(
+  route,
+  new TokenAmount(token, amountOut),
+  eth,
+  { maxHops: 3 }
+);
+
+const executionPrice2 = trade2.executionPrice.toSignificant(6);
+console.log(`Sell price of 1 token: ${executionPrice2} ETH`);
 }
 
 // Retrieve the current ETH price in USD from the Chainlink Price Feed Contract
