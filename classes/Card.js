@@ -1,7 +1,8 @@
-const { createCanvas } = require("canvas");
+const Canvas = require("canvas");
 const fs = require("fs");
+const path = require("path");
 
-module.exports.Card = async ( name ) => {
+module.exports.Card = async ( name, mc = ['100K','200K', '500K', '750K', '1M'] ) => {
 
   const wrapText = function(ctx, text, x, y, maxWidth, lineHeight) {
     // First, start by splitting all of our text into words, but splitting it into an array split by spaces
@@ -48,11 +49,11 @@ module.exports.Card = async ( name ) => {
     contractTitle: "ETHEREUM CONTRACT",
     contractAddress: "0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0",
     instructions: "AT EACH NEW HIGHER FLOOR, A REVIEW OF WALLETS WILL BE DONE THAT WILL SHOW WHAT WALLETS HAVE HELD SINCE THE PREVIOUS FLOOR.",
-    floor1: "100K LIVE RAFFLE (TWO WINNERS DRAWN)",
-    floor2: "200K LIVE RAFFLE (TWO WINNERS DRAWN)",
-    floor3: "500K LIVE RAFFLE (TWO WINNERS DRAWN)",
-    floor4: "750K LIVE RAFFLE (TWO WINNERS DRAWN)",
-    floor5: "1M LIVE RAFFLE (TWO WINNERS DRAWN)",
+    floor1: `${mc[0]} LIVE RAFFLE (TWO WINNERS DRAWN)`,
+    floor2: `${mc[1]} LIVE RAFFLE (TWO WINNERS DRAWN)`,
+    floor3: `${mc[2]} LIVE RAFFLE (TWO WINNERS DRAWN)`,
+    floor4: `${mc[3]} LIVE RAFFLE (TWO WINNERS DRAWN)`,
+    floor5: `${mc[4]} LIVE RAFFLE (TWO WINNERS DRAWN)`,
     footer: "WE AS A COMMUNITY VALUE OUR LOYAL HOLDERS AND LOOK FORWARD TO SHARING SOME OF THE WEALTH WITH OUR COMMITED COMMUNITY.",
     social1: "@VITALIK_BOY",
     social2: "T.ME/VITALIKBOY",
@@ -92,12 +93,31 @@ module.exports.Card = async ( name ) => {
   const height = 1280;
 
   // Instantiate the canvas object
-  const canvas = createCanvas(width, height);
+  const canvas = new Canvas.createCanvas(width, height);
   const context = canvas.getContext("2d");
+  const bgImg = new Canvas.Image;
+  const ethereumLogoLeftImg = new Canvas.Image;
+  const ethereumLogoRightImg = new Canvas.Image;
+  const projectLogoImg = new Canvas.Image;
+
+  bgImg.src = fs.readFileSync(path.join(__dirname, '../images/background.jpg'));
+  ethereumLogoLeftImg.src = fs.readFileSync(path.join(__dirname, '../images/ethereumLogo.png'));
+  ethereumLogoRightImg.src = fs.readFileSync(path.join(__dirname, '../images/ethereumLogo.png'));
+  projectLogoImg.src = fs.readFileSync(path.join(__dirname, '../images/VBLogo.png'));
 
   // Fill the rectangle with purple
   context.fillStyle = backgroundColor;
   context.fillRect(0, 0, width, height);
+
+  context.globalAlpha = 0.1;
+
+  context.drawImage(bgImg,0,120,1080,1080);
+
+  context.globalAlpha = 1.0;
+
+  context.drawImage(ethereumLogoLeftImg,100,860,160,160);
+  context.drawImage(projectLogoImg,350,790,280,280);
+  context.drawImage(ethereumLogoRightImg,700,860,160,160);
 
   context.font = "bold 36pt 'PT Sans'";
   context.textAlign = "center";
@@ -113,17 +133,27 @@ module.exports.Card = async ( name ) => {
   
   context.fillStyle = fontColorA;
 
-  const wrappedText = wrapText( context, cardPost.instructions, 490, 300, 900, 48);
-  wrappedText.forEach(function(item) {
+  const wrappedInstructionsText = wrapText( context, cardPost.instructions, 490, 240, 900, 36);
+  wrappedInstructionsText.forEach(function(item) {
     context.fillText(item[0], item[1], item[2]); 
   });
 
-  context.fillText(cardPost.floor1, 490, 500);
-  context.fillText(cardPost.floor2, 490, 580);
-  context.fillText(cardPost.floor3, 490, 660);
-  context.fillText(cardPost.floor4, 490, 740);
-  context.fillText(cardPost.floor5, 490, 820);
+  context.fillText(cardPost.floor1, 490, 420);
+  context.fillText(cardPost.floor2, 490, 500);
+  context.fillText(cardPost.floor3, 490, 580);
+  context.fillText(cardPost.floor4, 490, 660);
+  context.fillText(cardPost.floor5, 490, 740);
 
+  const wrappedFooterText = wrapText( context, cardPost.footer, 490, 1120, 900, 36);
+  wrappedFooterText.forEach(function(item) {
+    context.fillText(item[0], item[1], item[2]); 
+  });
+
+  context.font = "24pt 'PT Sans'";
+  context.fillStyle = fontColorB;
+  context.fillText(cardPost.social1, 150, 1250);
+  context.fillText(cardPost.social2, 490, 1250);
+  context.fillText(cardPost.social3, 800, 1250);
 
   // Write the image to file
   const buffer = canvas.toBuffer("image/png");

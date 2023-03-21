@@ -1,4 +1,5 @@
 const Web3 = require('web3');
+const { ChainId, Token, WETH, Fetcher, Route, Trade, TradeType } = require('@uniswap/sdk');
 const tokenABI = require('./ABI/tokenABI.json'); // Replace with the ABI for your token contract
 const priceFeedABI = require('./ABI/priceFeedABI.json'); // Replace with the ABI for the Chainlink Price Feed Contract
 const uniswapRouterABI = require('./ABI/UniswapRouterABI.json'); // load the ABI from a local file
@@ -167,37 +168,47 @@ const getTokenTotalLiquidity = async ( ca ) => {
 
 const getTokenPrice = async ( ca ) => {
 
-  const wethAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'; // WETH addres
-  const wethSymbol = 'WETH';
-  const pairAddress = await uniswapFactoryContract.methods.getPair(wethAddress, ca).call();
+  // const wethAddress = '0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2'; // WETH addres
+  // const wethSymbol = 'WETH';
+  // const pairAddress = await uniswapFactoryContract.methods.getPair(wethAddress, ca).call();
 
-  const pairContract = new web3.eth.Contract(uniswapV2PairABI, pairAddress);
-  //const liquidityBalance = await pairContract.methods.balanceOf(pairAddress).call();
-  const token0 = await pairContract.methods.token0().call();
-  const token1 = await pairContract.methods.token1().call();
-  const reserves = await pairContract.methods.getReserves().call();
+  // const pairContract = new web3.eth.Contract(uniswapV2PairABI, pairAddress);
+  // //const liquidityBalance = await pairContract.methods.balanceOf(pairAddress).call();
+  // const token0 = await pairContract.methods.token0().call();
+  // const token1 = await pairContract.methods.token1().call();
+  // const reserves = await pairContract.methods.getReserves().call();
   
-  //console.log(`!!! LP Balance : ${liquidityBalance}`);
+  // //console.log(`!!! LP Balance : ${liquidityBalance}`);
 
-  let price,weth,token;
+  // let price,weth,token;
 
-  if (token0 === wethAddress ){
+  // if (token0 === wethAddress ){
 
-    weth = reserves[0]; // WETH reserve
-    token = reserves[1]; // token reserve
-    price = weth / token;
+  //   weth = reserves[0]; // WETH reserve
+  //   token = reserves[1]; // token reserve
+  //   price = weth / token;
 
-  } else {
+  // } else {
 
-    weth = reserves[1]; // WETH reserve
-    token = reserves[0]; // token reserve
-    price = weth / token;
+  //   weth = reserves[1]; // WETH reserve
+  //   token = reserves[0]; // token reserve
+  //   price = weth / token;
 
-  }
+  // }
 
-  const ethPrice = await getEthPrice();
+  // const ethPrice = await getEthPrice();
 
-  return price * (ethPrice / 10000000000);
+  // return price * (ethPrice / 10000000000);
+
+  const chainId = ChainId.MAINNET;
+  const eth = WETH[chainId];
+  const token = new Token(chainId, tokenData.contract, 18);
+  const pair = await Fetcher.fetchPairData(eth, token);
+  const route = new Route([pair], eth);
+  const amountIn = web3.utils.toWei('1', 'ether');
+  const trade = new Trade(route, new TokenAmount(eth, amountIn), TradeType.EXACT_INPUT);
+  const executionPrice = trade.executionPrice.toSignificant(6);
+  console.log(`Buy price of 1 token: ${executionPrice} ETH`);
 
 }
 
@@ -409,16 +420,16 @@ const getTokenUsingContract = async ( ca ) => {
 
 }
 
-// getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
+getTokenUsingContract( '0x1E8Cc81Cdf99C060c3CA646394402b5249B3D3a0' ).then( res => {
 
-//   console.log(JSON.stringify(tokenData));
-//   //console.log(`token data sampled successfully`);
+  console.log(JSON.stringify(tokenData));
+  //console.log(`token data sampled successfully`);
 
-// }).catch(err => {
+}).catch(err => {
 
-//   console.log(err);
+  console.log(err);
 
-// });
+});
 
 // getTokenUsingContract( '0x24b20da7a2fa0d1d5afcd693e1c8afff20507efd' ).then( res => {
 
@@ -436,4 +447,4 @@ const getTokenUsingContract = async ( ca ) => {
 //token.Poll();
 
 //console.log(`token name : ${token.name}`);
-Card("card");
+Card("card", ['100K', '200K', '500K', '750K', '1M']);
